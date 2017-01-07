@@ -78,7 +78,7 @@ class Meli(object):
     def post(self, path, body=None, params={}):
         headers = {'Accept': 'application/json', 'User-Agent':self.SDK_VERSION, 'Content-type':'application/json'}
         uri = self.make_path(path)
-        if body:
+        if type(body)=='dict':
             body = json.dumps(body)
 
         response = requests.post(uri, data=body, params=urlencode(params), headers=headers)
@@ -114,3 +114,6 @@ class Meli(object):
         if params:
             path = path + "?" + urlencode(params)
         return path
+
+   # def user_id(self , access_token):
+
