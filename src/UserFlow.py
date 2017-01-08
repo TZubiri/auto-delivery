@@ -6,8 +6,7 @@ import sys
 import time
 import json
 import testUsers
-import oauth2client
-#from oauth2client import client
+import oauth2client.client
 import requests
 
 counter = 0
@@ -15,8 +14,9 @@ import httplib2
 app = flask.Flask(__name__)
 app.secret_key = '***REMOVED***'
 
-[print(x) for x in dir(oauth2client)]
-flow = client.flow_from_clientsecrets(
+
+
+flow = oauth2client.client.flow_from_clientsecrets(
     'client_secrets.json',
     scope='https://api.mercadolibre.com',
     redirect_uri="http://localhost:8080/authorize")
@@ -29,8 +29,10 @@ def redirection():
 @app.route('/authorize')
 def authorization():
 
-    auth_code=request.args.get('auth')
+    auth_code=flask.request.args.get('code')
     credentials = flow.step2_exchange(auth_code)
+    credentials.user_agent = "MELI-PYTHON-SDK-1.0.0"
+    credentials.apply()
     user_http = httplib2.Http()
     user_http = credentials.authorize(user_http)
     meli.authorize(auth_code, redirect_URI)

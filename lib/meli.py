@@ -31,7 +31,7 @@ class Meli(object):
 
     def authorize(self, code, redirect_URI):
         params = { 'grant_type' : 'authorization_code', 'client_id' : self.client_id, 'client_secret' : self.client_secret, 'code' : code, 'redirect_uri' : redirect_URI}
-        headers = {'Accept': 'application/json', 'User-Agent':self.SDK_VERSION, 'Content-type':'application/json'}
+        headers = {'Accept': 'application/json', 'User-Agent':'MELI-PYTHON-SDK-1.0.0', 'Content-type':'application/json'}
         uri = self.make_path(self.OAUTH_URL)
 
         response = requests.post(uri, params=urlencode(params), headers=headers)
