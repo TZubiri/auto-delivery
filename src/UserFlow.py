@@ -6,11 +6,15 @@ import sys
 import time
 import json
 import testUsers
+import httplib2
+import oauthMonkey
 import oauth2client.client
 import requests
 
+
 counter = 0
-import httplib2
+
+headers = {'Accept': 'application/json', 'User-Agent': 'MELI-PYTHON-SDK-1.0.0', 'Content-type': 'application/json'}
 app = flask.Flask(__name__)
 app.secret_key = '***REMOVED***'
 
@@ -18,7 +22,7 @@ app.secret_key = '***REMOVED***'
 
 flow = oauth2client.client.flow_from_clientsecrets(
     'client_secrets.json',
-    scope='https://api.mercadolibre.com',
+    scope="https://auth.mercadolibre.com",
     redirect_uri="http://localhost:8080/authorize")
 
 @app.route('/login')
@@ -32,10 +36,8 @@ def authorization():
     auth_code=flask.request.args.get('code')
     credentials = flow.step2_exchange(auth_code)
     credentials.user_agent = "MELI-PYTHON-SDK-1.0.0"
-    credentials.apply()
     user_http = httplib2.Http()
     user_http = credentials.authorize(user_http)
-    meli.authorize(auth_code, redirect_URI)
    # params = {'access_token' : meli.access_token}
    # response = meli.get(path="/users/5000", params=params)
    # authorizedwebpage = 'successful.  Access Token: ' + meli.access_token+' Refresh Token: '+ meli.refresh_token
@@ -57,7 +59,8 @@ def debug():
 @app.route('/HelloWorld')
 def hello():
     params = {'access_token' : meli.access_token}
-    response = http.get(path="/users/me", params=params)
+    response = http
+        #get(path="/users/me", params=params)
     print (type(response.content))
     print (response.content)
     print (meli.access_token)
@@ -88,7 +91,7 @@ def dispatchNotification():
     return r
 
 app.debug= True
-app.run(host=os.getenv('IP', '0.0.0.0'),port=int(os.getenv('PORT', 8080)))
+app.run(host=os.getenv('IP', '127.0.0.1'),port=int(os.getenv('PORT', 8080)))
 
 
 '''
