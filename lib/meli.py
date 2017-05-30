@@ -4,8 +4,8 @@
 import re
 import os
 import requests
-from urllib import urlencode
-from ConfigParser import SafeConfigParser
+from urllib import parse
+from configparser import SafeConfigParser
 import json
 
 class Meli(object):
@@ -26,7 +26,7 @@ class Meli(object):
     #AUTH METHODS
     def auth_url(self,redirect_URI):
         params = {'client_id':self.client_id,'response_type':'code','redirect_uri':redirect_URI}
-        url = self.AUTH_URL  + '?' + urlencode(params)
+        url = self.AUTH_URL  + '?' + parse.urlencode(params)
         return url
 
     def authorize(self, code, redirect_URI):
@@ -34,7 +34,7 @@ class Meli(object):
         headers = {'Accept': 'application/json', 'User-Agent':self.SDK_VERSION, 'Content-type':'application/json'}
         uri = self.make_path(self.OAUTH_URL)
 
-        response = requests.post(uri, params=urlencode(params), headers=headers)
+        response = requests.post(uri, params=parse.urlencode(params), headers=headers)
 
         if response.status_code == requests.codes.ok:
             response_info = response.json()
@@ -55,7 +55,7 @@ class Meli(object):
             headers = {'Accept': 'application/json', 'User-Agent':self.SDK_VERSION, 'Content-type':'application/json'}
             uri = self.make_path(self.OAUTH_URL)
 
-            response = requests.post(uri, params=urlencode(params), headers=headers, data=params)
+            response = requests.post(uri, params=parse.urlencode(params), headers=headers, data=params)
 
             if response.status_code == requests.codes.ok:
                 response_info = response.json()
@@ -66,13 +66,13 @@ class Meli(object):
                 # response code isn't a 200; raise an exception
                 response.raise_for_status()
         else:
-            raise Exception, "Offline-Access is not allowed."
+            raise Exception("Offline-Access is not allowed.")
 
     # REQUEST METHODS
     def get(self, path, params={}):
         headers = {'Accept': 'application/json', 'User-Agent':self.SDK_VERSION, 'Content-type':'application/json'}
         uri = self.make_path(path)
-        response = requests.get(uri, params=urlencode(params), headers=headers)
+        response = requests.get(uri, params=parse.urlencode(params), headers=headers)
         return response
 
     def post(self, path, body=None, params={}):
@@ -81,7 +81,7 @@ class Meli(object):
         if type(body)=='dict':
             body = json.dumps(body)
 
-        response = requests.post(uri, data=body, params=urlencode(params), headers=headers)
+        response = requests.post(uri, data=body, params=parse.urlencode(params), headers=headers)
         return response
 
     def put(self, path, body=None, params={}):
@@ -90,7 +90,7 @@ class Meli(object):
         if body:
             body = json.dumps(body)
 
-        response = requests.put(uri, data=body, params=urlencode(params), headers=headers)
+        response = requests.put(uri, data=body, params=parse.urlencode(params), headers=headers)
         return response
 
     def delete(self, path, params={}):
@@ -102,7 +102,7 @@ class Meli(object):
     def options(self, path, params={}):
         headers = {'Accept': 'application/json', 'User-Agent':self.SDK_VERSION, 'Content-type':'application/json'}
         uri = self.make_path(path)
-        response = requests.options(uri, params=urlencode(params), headers=headers)
+        response = requests.options(uri, params=parse.urlencode(params), headers=headers)
         return response
 
     def make_path(self, path, params={}):
@@ -112,7 +112,7 @@ class Meli(object):
                 path = "/" + path
             path = self.API_ROOT_URL + path
         if params:
-            path = path + "?" + urlencode(params)
+            path = path + "?" + parse.urlencode(params)
         return path
 
    # def user_id(self , access_token):
