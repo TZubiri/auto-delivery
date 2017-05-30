@@ -15,13 +15,13 @@ redirect_uri= base_uri + "/authorize"
 @app.route('/userstart')
 def redirection():
     authed_redirect_uri = meli.auth_url(redirect_uri)
-   # return redirectUrl
+    #return redirectUrl
     return redirect(authed_redirect_uri, code=302)
     
 @app.route('/authorize')
 def authorization():
     usercode=request.args.get('code')
-    meli.authorize(usercode, redirect_URI)
+    meli.authorize(usercode, redirect_uri)
    # params = {'access_token' : meli.access_token}
    # response = meli.get(path="/users/5000", params=params)
    # authorizedwebpage = 'successful.  Access Token: ' + meli.access_token+' Refresh Token: '+ meli.refresh_token
@@ -65,16 +65,17 @@ def CreateTestUser():
 
 @app.route('/callbacks')
 def callbacksHandler():
+    if request.args['topic'] == 'items':
+        payments_handler(request.args['resource'],request.args['user_id'],request.args['application_id'])
+    if request.args['topic'] == 'questions':
+        questions_handler(request.args['resource'],request.args['user_id'])
+    if request.args['topic'] == 'orders':
+        orders_handler(request.args['resource'],request.args['user_id'])
+    return '200'
 
-    postParams = json.loads(request.args.post())
-    topic = postParams['topic']
-    topic_to_function = {'items': item_handler,
-                         'orders': orders_handler,
-                         'questions': questions_handler,
-                         'payments': payments_handler
-                         }
-    handler = topic_to_function.get(topic,None)
-    handler(postParams)
-
-def payments_handler(**kwargs):
-    kwargs['resource']
+def payments_handler(resource:str,user_id:str, application_id:str):
+    pass
+def orders_handler(resource:str, user_id:str):
+    pass
+def questions_handler(resource:str,user_id:str):
+    pass
