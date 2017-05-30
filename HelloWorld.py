@@ -53,12 +53,17 @@ def hello():
 @app.route('/SecondTest')
 def SecondTest():
     params = {'access_token' : meli.access_token}
-    response = meli.get(path="/questions/search?item={Item_id}", params=params)
+    itemId = request.args.get('itemId')
+    if itemId is None:
+        return 'an item id is required'
+
+    print (itemId)
+    response = meli.get(path="/questions/search?item=" + itemId , params=params)
     print (type(response.content))
     print (response.content)
     print (meli.access_token)
-    UsersPersonalInfo = json.loads(response.content)
-    return  'Hello, ' + UsersPersonalInfo['first_name'] + UsersPersonalInfo['last_name'] + ' Your email is: ' + UsersPersonalInfo['email']
+    itemInfo = json.loads(response.content)
+    return  'Hello, ' + response.text
 
 @app.route('/CreateTestUser')
 def CreateTestUser():
@@ -67,6 +72,10 @@ def CreateTestUser():
     TestUserInfoResponse = meli.post('/users/test_user',TestUserJson,{'access_token' : meli.access_token})
     TestUserInfo = TestUserInfoResponse.content
     return TestUserInfo
+
+@app.route('/SaleListener')
+def SaleListener():
+    pass
 
 app.debug= True
 app.run(host=os.getenv('IP', '127.0.0.1'),port=int(os.getenv('PORT', 8080)))
