@@ -1,5 +1,5 @@
 import os
-from flask import Flask,redirect,request,flash
+from flask import Flask,redirect,request,flash,url_for
 import sys
 from lib.meli import Meli
 import time
@@ -7,16 +7,17 @@ import json
 
 counter = 0
 app = Flask(__name__)
-app.secret_key = '***REMOVED***'
 
-meli = Meli(client_id=3410176288430291, client_secret="***REMOVED***")
-redirect_URI="http://localhost:8080/authorize"
-
+app.secret_key = os.getenv('secret_key')
+meli = Meli(client_id=os.getenv('client_id'), client_secret=os.getenv("client_secret")
+base_uri = os.getenv('base_uri')
+redirect_uri= base_uri + "/authorize"
+app.config['SERVER_NAME'] = base_uri
 @app.route('/userstart')
 def redirection():
-    redirectUrl = meli.auth_url(redirect_URI)
+    authed_redirect_uri = meli.auth_url(redirect_uri)
    # return redirectUrl
-    return redirect(redirectUrl, code=302)
+    return redirect(authed_redirect_uri, code=302)
     
 @app.route('/authorize')
 def authorization():
@@ -25,28 +26,18 @@ def authorization():
    # params = {'access_token' : meli.access_token}
    # response = meli.get(path="/users/5000", params=params)
    # authorizedwebpage = 'successful.  Access Token: ' + meli.access_token+' Refresh Token: '+ meli.refresh_token
-    return redirect("http://localhost:8080/HelloWorld", code=302)
+    return redirect(url_for("/HelloWorld"), code=302)
 
 @app.route('/success')
 def successful():
-
-
    # params = {'access_token' : meli.access_token}
    # response = meli.get(path="/users/5000", params=params)
     return 'successful.  Access Token: ' + meli.access_token+' Refresh Token: '+ meli.refresh_token
-
-@app.route('/debug')
-def debug():
-    flash(counter)
-    return 'ok'
 
 @app.route('/HelloWorld')
 def hello():
     params = {'access_token' : meli.access_token}
     response = meli.get(path="/users/me", params=params)
-    print (type(response.content))
-    print (response.content)
-    print (meli.access_token)
     UsersPersonalInfo = json.loads(response.content)
     return  'Hello, ' + UsersPersonalInfo['first_name'] + UsersPersonalInfo['last_name'] + ' Your email is: ' + UsersPersonalInfo['email']
 
@@ -73,16 +64,19 @@ def CreateTestUser():
     TestUserInfo = TestUserInfoResponse.content
     return TestUserInfo
 
-@app.route('/SaleListener')
-def SaleListener():
-    pass
+@app.route('/callbacks')
+def callbacksHandler():
 
+    postParams = json.loads(request.args.post())
+    print
+    topic = postParams['topic']
+    topic_to_function = {'items': item_handler,
+                         'orders': orders_handler,
+                         'questions': questions_handler,
+                         'payments': payments_handler
+                         }
+    handler = topic_to_function.get(topic,None)
+    handler(postParams)
 
-
-'''
-while meli.refresh_token:
-    counter= counter +1
-    time.sleep(1)
-    print "hi"
-    
-    '''
+def payments_handler(**kwargs):
+    kwargs['resource']
