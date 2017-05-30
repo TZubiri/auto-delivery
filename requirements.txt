@@ -1,3 +1,2 @@
-python-3.6.1
 requests
-flask
+flask==0.12
