@@ -1,4 +1,5 @@
 from HelloWorld import app
 
 if __name__ == "__main__":
-    application.run()
+    app.debug= True
+    app.run()
