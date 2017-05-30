@@ -7,9 +7,9 @@ import json
 
 counter = 0
 app = Flask(__name__)
-
+print(os.environ)
 app.secret_key = os.getenv('secret_key')
-meli = Meli(client_id=os.getenv('client_id'), client_secret=os.getenv("client_secret")
+meli = Meli(client_id=os.getenv('client_id'), client_secret=os.getenv("client_secret"))
 base_uri = os.getenv('base_uri')
 redirect_uri= base_uri + "/authorize"
 app.config['SERVER_NAME'] = base_uri
