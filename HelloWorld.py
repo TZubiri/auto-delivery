@@ -7,12 +7,11 @@ import json
 
 counter = 0
 app = Flask(__name__)
-print(os.environ)
 app.secret_key = os.getenv('secret_key')
 meli = Meli(client_id=os.getenv('client_id'), client_secret=os.getenv("client_secret"))
 base_uri = os.getenv('base_uri')
 redirect_uri= base_uri + "/authorize"
-app.config['SERVER_NAME'] = base_uri
+
 @app.route('/userstart')
 def redirection():
     authed_redirect_uri = meli.auth_url(redirect_uri)
@@ -26,7 +25,7 @@ def authorization():
    # params = {'access_token' : meli.access_token}
    # response = meli.get(path="/users/5000", params=params)
    # authorizedwebpage = 'successful.  Access Token: ' + meli.access_token+' Refresh Token: '+ meli.refresh_token
-    return redirect(url_for("/HelloWorld"), code=302)
+    return redirect(base_uri + "/HelloWorld", code=302)
 
 @app.route('/success')
 def successful():
@@ -68,7 +67,6 @@ def CreateTestUser():
 def callbacksHandler():
 
     postParams = json.loads(request.args.post())
-    print
     topic = postParams['topic']
     topic_to_function = {'items': item_handler,
                          'orders': orders_handler,
