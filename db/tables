@@ -1,5 +1,5 @@
 CREATE TABLE autodelivery_user(
   mlid INT PRIMARY KEY NOT NULL,
-  access_token INT NOT NULL,
-  refresh_token INT NOT NULL
+  access_token CHAR(100) NOT NULL,
+  refresh_token CHAR(100) NOT NULL
 );

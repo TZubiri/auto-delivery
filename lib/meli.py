@@ -1,12 +1,13 @@
  #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import re
-import os
-import requests
-from urllib import parse
-from configparser import SafeConfigParser
+import lib.ssl_helper
+import urllib.parse
 import json
+import os
+import re
+import requests
+import ssl
 
 class Meli(object):
     def __init__(self, client_id, client_secret, access_token=None, refresh_token=None):
@@ -14,19 +15,25 @@ class Meli(object):
         self.client_secret = client_secret
         self.access_token = access_token
         self.refresh_token = refresh_token
+        self.expires_in = None 
 
-        parser = SafeConfigParser()
-        parser.read(os.path.dirname(os.path.abspath(__file__))+'/config.ini')
+        self.API_ROOT_URL = 'https://api.mercadolibre.com'
+        self.SDK_VERSION = 'MELI-PYTHON-SDK-1.0.1'
+        self.AUTH_URL = 'https://auth.mercadolibre.com'
+        self.OAUTH_URL = '/oauth/token'
 
-        self.API_ROOT_URL = parser.get('config', 'api_root_url')
-        self.SDK_VERSION = parser.get('config', 'sdk_version')
-        self.AUTH_URL = parser.get('config', 'auth_url')
-        self.OAUTH_URL = parser.get('config', 'oauth_url')
+        self._requests = requests.Session()
+        try:
+            self.SSL_VERSION = 'PROTOCOL_TLSv1'
+            self._requests.mount('https://', SSLAdapter(ssl_version=getattr(ssl, self.SSL_VERSION)))
+        except:
+            self._requests = requests
+
 
     #AUTH METHODS
     def auth_url(self,redirect_URI):
         params = {'client_id':self.client_id,'response_type':'code','redirect_uri':redirect_URI}
-        url = self.AUTH_URL  + '?' + parse.urlencode(params)
+        url = self.AUTH_URL  + '/authorization' + '?' + urllib.parse.urlencode(params)
         return url
 
     def authorize(self, code, redirect_URI):
@@ -34,7 +41,7 @@ class Meli(object):
         headers = {'Accept': 'application/json', 'User-Agent':self.SDK_VERSION, 'Content-type':'application/json'}
         uri = self.make_path(self.OAUTH_URL)
 
-        response = requests.post(uri, params=parse.urlencode(params), headers=headers)
+        response = self._requests.post(uri, params=urllib.parse.urlencode(params), headers=headers)
 
         if response.status_code == requests.codes.ok:
             response_info = response.json()
@@ -43,6 +50,7 @@ class Meli(object):
                 self.refresh_token = response_info['refresh_token']
             else:
                 self.refresh_token = '' # offline_access not set up
+                self.expires_in = response_info['expires_in']
 
             return self.access_token
         else:
@@ -55,33 +63,34 @@ class Meli(object):
             headers = {'Accept': 'application/json', 'User-Agent':self.SDK_VERSION, 'Content-type':'application/json'}
             uri = self.make_path(self.OAUTH_URL)
 
-            response = requests.post(uri, params=parse.urlencode(params), headers=headers, data=params)
+            response = self._requests.post(uri, params=urllib.parse.urlencode(params), headers=headers, data=params)
 
             if response.status_code == requests.codes.ok:
                 response_info = response.json()
                 self.access_token = response_info['access_token']
                 self.refresh_token = response_info['refresh_token']
+                self.expires_in = response_info['expires_in']
                 return self.access_token
             else:
                 # response code isn't a 200; raise an exception
                 response.raise_for_status()
         else:
-            raise Exception("Offline-Access is not allowed.")
+                raise Exception("Offline-Access is not allowed.")
 
     # REQUEST METHODS
     def get(self, path, params={}):
         headers = {'Accept': 'application/json', 'User-Agent':self.SDK_VERSION, 'Content-type':'application/json'}
         uri = self.make_path(path)
-        response = requests.get(uri, params=parse.urlencode(params), headers=headers)
+        response = self._requests.get(uri, params=urllib.parse.urlencode(params), headers=headers)
         return response
 
     def post(self, path, body=None, params={}):
         headers = {'Accept': 'application/json', 'User-Agent':self.SDK_VERSION, 'Content-type':'application/json'}
         uri = self.make_path(path)
-        if type(body)=='dict':
+        if body:
             body = json.dumps(body)
 
-        response = requests.post(uri, data=body, params=parse.urlencode(params), headers=headers)
+        response = self._requests.post(uri, data=body, params=urllib.parse.urlencode(params), headers=headers)
         return response
 
     def put(self, path, body=None, params={}):
@@ -90,19 +99,19 @@ class Meli(object):
         if body:
             body = json.dumps(body)
 
-        response = requests.put(uri, data=body, params=parse.urlencode(params), headers=headers)
+        response = self._requests.put(uri, data=body, params=urllib.parse.urlencode(params), headers=headers)
         return response
 
     def delete(self, path, params={}):
         headers = {'Accept': 'application/json', 'User-Agent':self.SDK_VERSION, 'Content-type':'application/json'}
         uri = self.make_path(path)
-        response = requests.delete(uri, params=params, headers=headers)
+        response = self._requests.delete(uri, params=params, headers=headers)
         return response
 
     def options(self, path, params={}):
         headers = {'Accept': 'application/json', 'User-Agent':self.SDK_VERSION, 'Content-type':'application/json'}
         uri = self.make_path(path)
-        response = requests.options(uri, params=parse.urlencode(params), headers=headers)
+        response = self._requests.options(uri, params=urllib.parse.urlencode(params), headers=headers)
         return response
 
     def make_path(self, path, params={}):
@@ -112,8 +121,5 @@ class Meli(object):
                 path = "/" + path
             path = self.API_ROOT_URL + path
         if params:
-            path = path + "?" + parse.urlencode(params)
+            path = path + "?" + urllib.parse.urlencode(params)
         return path
-
-   # def user_id(self , access_token):
-

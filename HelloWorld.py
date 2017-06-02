@@ -1,17 +1,16 @@
 import os
 from flask import Flask,redirect,request,flash,url_for
-from flask_login import LoginManager,login_user
+from flask_login import LoginManager,login_user,login_required,current_user
 import sys
 from lib.meli import Meli
 import time
 import json
 from AutodeliveryUser import User
-counter = 0
+
 app = Flask(__name__)
 app.secret_key = os.getenv('secret_key')
 login_manager = LoginManager()
 login_manager.init_app(app)
-meli = Meli(client_id=os.getenv('client_id'), client_secret=os.getenv("client_secret"))
 base_uri = os.getenv('base_uri')
 redirect_uri= base_uri + "/authorize"
 
@@ -32,12 +31,15 @@ def authorization():
     meli.authorize(usercode, redirect_uri)
     params = {'access_token' : meli.access_token}
     r = meli.get(path="/users/me", params=params)
-    login_user(User(r.json()['id'],meli.access_token,meli.refresh_token))
-    print(r.text)
+    if r.status_code == 200:
+        login_user(User(r.json()['id'],meli.access_token,meli.refresh_token))
+    else:
+        #TODO: Log error. Show support contact info.
+        return 'Could not login correctly. Please contact support'
    # params = {'access_token' : meli.access_token}
    # response = meli.get(path="/users/5000", params=params)
    # authorizedwebpage = 'successful.  Access Token: ' + meli.access_token+' Refresh Token: '+ meli.refresh_token
-    return redirect(base_uri + "/HelloWorld", code=302)
+    return redirect(base_uri + "/test", code=302)
 
 @app.route('/success')
 def successful():
@@ -46,8 +48,9 @@ def successful():
     return 'successful.  Access Token: ' + meli.access_token+' Refresh Token: '+ meli.refresh_token
 
 @app.route('/test')
+@login_required
 def hello():
-    params = {'access_token' : meli.access_token}
+    params = {'access_token' : current_user.}
     response = meli.get(path="/users/me", params=params)
     UsersPersonalInfo = json.loads(response.content)
     return  UsersPersonalInfo['first_name'] + UsersPersonalInfo['last_name']
