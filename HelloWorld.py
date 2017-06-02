@@ -5,7 +5,7 @@ import sys
 from lib.meli import Meli
 import time
 import json
-from AutodeliveryUser import User
+from AutodeliveryUser import User,register_user
 
 app = Flask(__name__)
 app.secret_key = os.getenv('secret_key')
@@ -16,7 +16,7 @@ redirect_uri= base_uri + "/authorize"
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.build_user(user_id)
+    return AutodeliveryUser(user_id)
 
 @app.route('/login')
 def redirection():
@@ -32,7 +32,8 @@ def authorization():
     params = {'access_token' : meli.access_token}
     r = meli.get(path="/users/me", params=params)
     if r.status_code == 200:
-        login_user(User(r.json()['id'],meli.access_token,meli.refresh_token))
+        user = AutodeliveryUser(User(r.json()['id'],meli.access_token,meli.refresh_token))
+        login_user(user)
     else:
         #TODO: Log error. Show support contact info.
         return 'Could not login correctly. Please contact support'
@@ -50,7 +51,7 @@ def successful():
 @app.route('/test')
 @login_required
 def hello():
-    params = {'access_token' : current_user.}
+    params = {'access_token' : current_user.access_token}
     response = meli.get(path="/users/me", params=params)
     UsersPersonalInfo = json.loads(response.content)
     return  UsersPersonalInfo['first_name'] + UsersPersonalInfo['last_name']
