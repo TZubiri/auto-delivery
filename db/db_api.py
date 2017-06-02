@@ -4,7 +4,7 @@ def get_connection():
     return psycopg2.connect('dbname=autodelivery user=postgres')
 
 def register_user(user_id,access_token,refresh_token):
-        get_connection
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute('SELECT * FROM autodelivery_user WHERE MLID = (%s);',(user_id,))
         response = cur.fetchone()
@@ -17,7 +17,7 @@ def register_user(user_id,access_token,refresh_token):
         conn.close
 
 def get_user_credentials(user_id):
-    get_connection()
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute('SELECT access_token,refresh_token FROM autodelivery_user WHERE MLID = (%s);',(user_id,))
     return cur.fetchone()

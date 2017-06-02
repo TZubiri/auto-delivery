@@ -4,7 +4,7 @@ import db.db_api as db_api
 class User:
     def __init__(self,user_id,access_token = None,refresh_token = None):
         self.user_id = user_id
-        if access_token = None:
+        if access_token == None:
             self.access_token, self.refresh_token = db_api.get_user_credentials(user_id)
         else:
             self.access_token = access_token
@@ -19,4 +19,7 @@ class User:
 
     def get_id(self):
         return self.user_id
+
+    def is_authenticated(self):
+        return True
 
