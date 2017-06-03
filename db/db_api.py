@@ -1,9 +1,9 @@
 import psycopg2
 
-def get_connection():
+def get_connection  ():
     return psycopg2.connect('dbname=autodelivery user=postgres')
 
-def register_user(user_id,access_token,refresh_token):
+def register_user  (user_id,access_token,refresh_token):
         conn = get_connection()
         cur = conn.cursor()
         cur.execute('SELECT * FROM autodelivery_user WHERE MLID = (%s);',(user_id,))
@@ -16,8 +16,33 @@ def register_user(user_id,access_token,refresh_token):
         cur.close()
         conn.close
 
-def get_user_credentials(user_id):
+def get_user_credentials  (user_id):
     conn = get_connection()
     cur = conn.cursor()
     cur.execute('SELECT access_token,refresh_token FROM autodelivery_user WHERE MLID = (%s);',(user_id,))
-    return cur.fetchone()
+    response = cur.fetchone()
+    cur.close()
+    conn.close()
+    return response
+
+def get_user_stock_list  (user_id):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute('''SELECT stock.resource,item.name
+                FROM stock
+                INNER JOIN item
+                ON stock.item = item.id
+                WHERE item.mluser = %s;''',(user_id,))
+    response = cur.fetchall()
+    cur.close()
+    conn.close()
+    return response
+
+def get_user_defined_items  (user_id):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute('SELECT name FROM item where mluser = %s;', (user_id,))
+    response = cur.fetchall()
+    cur.close()
+    conn.close()
+    return response

@@ -23,3 +23,16 @@ class User:
     def is_authenticated(self):
         return True
 
+    def stock_list(self):
+        ls = []
+        for raw_stock in db_api.get_user_stock_list(self.user_id):
+            ls.append(Stock(raw_stock[0],raw_stock[1]))
+        return ls
+
+    def defined_items(self):
+        return db_api.get_user_defined_items(self.user_id)
+
+class Stock:
+    def __init__(self,resource:str,item_name:str):
+        self.resource = resource
+        self.item_name = item_name

@@ -1,7 +1,7 @@
  #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import lib.ssl_helper
+from lib.ssl_helper import SSLAdapter
 import urllib.parse
 import json
 import os
@@ -23,11 +23,8 @@ class Meli(object):
         self.OAUTH_URL = '/oauth/token'
 
         self._requests = requests.Session()
-        try:
-            self.SSL_VERSION = 'PROTOCOL_TLSv1'
-            self._requests.mount('https://', SSLAdapter(ssl_version=getattr(ssl, self.SSL_VERSION)))
-        except:
-            self._requests = requests
+        self.SSL_VERSION = 'PROTOCOL_TLSv1'
+        self._requests.mount('https://', SSLAdapter(ssl_version=getattr(ssl, self.SSL_VERSION)))
 
 
     #AUTH METHODS

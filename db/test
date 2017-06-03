@@ -1,0 +1,67 @@
+--
+-- PostgreSQL port of the MySQL "World" database.
+--
+-- The sample data used in the world database is Copyright Statistics
+-- Finland, http://www.stat.fi/worldinfigures.
+--
+
+BEGIN;
+
+SET client_encoding = 'LATIN1';
+
+CREATE TABLE city (
+    id integer NOT NULL,
+    name text NOT NULL,
+    countrycode character(3) NOT NULL,
+    district text NOT NULL,
+    population integer NOT NULL
+);
+
+CREATE TABLE country (
+    code character(3) NOT NULL,
+    name text NOT NULL,
+    continent text NOT NULL,
+    region text NOT NULL,
+    surfacearea real NOT NULL,
+    indepyear smallint,
+    population integer NOT NULL,
+    lifeexpectancy real,
+    gnp numeric(10,2),
+    gnpold numeric(10,2),
+    localname text NOT NULL,
+    governmentform text NOT NULL,
+    headofstate text,
+    capital integer,
+    code2 character(2) NOT NULL,
+    CONSTRAINT country_continent_check CHECK ((((((((continent = 'Asia'::text) OR (continent = 'Europe'::text)) OR (continent = 'North America'::text)) OR (continent = 'Africa'::text)) OR (continent = 'Oceania'::text)) OR (continent = 'Antarctica'::text)) OR (continent = 'South America'::text)))
+);
+
+CREATE TABLE countrylanguage (
+    countrycode character(3) NOT NULL,
+    "language" text NOT NULL,
+    isofficial boolean NOT NULL,
+    percentage real NOT NULL
+);
+
+COPY city (id, name, countrycode, district, population) FROM stdin;
+1	Kabul	AFG	Kabol	1780000
+2	Qandahar	AFG	Qandahar	237500
+3	Herat	AFG	Herat	186800
+4	Mazar-e-Sharif	AFG	Balkh	127800
+5	Amsterdam	NLD	Noord-Holland	731200
+6	Rotterdam	NLD	Zuid-Holland	593321
+7	Haag	NLD	Zuid-Holland	440900
+8	Utrecht	NLD	Utrecht	234323
+9	Eindhoven	NLD	Noord-Brabant	201843
+10	Tilburg	NLD	Noord-Brabant	193238
+11	Groningen	NLD	Groningen	172701
+12	Breda	NLD	Noord-Brabant	160398
+13	Apeldoorn	NLD	Gelderland	153491
+14	Nijmegen	NLD	Gelderland	152463
+15	Enschede	NLD	Overijssel	149544
+16	Haarlem	NLD	Noord-Holland	148772
+17	Almere	NLD	Flevoland	142465
+18	Arnhem	NLD	Gelderland	138020
+19	Zaanstad	NLD	Noord-Holland	135621
+20	´s-Hertogenbosch	NLD	Noord-Brabant	129170
+21	Amersfoort	NLD

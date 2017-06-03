@@ -1,5 +1,5 @@
 import os
-from flask import Flask,redirect,request,flash,url_for
+from flask import Flask,redirect,request,flash,url_for,render_template
 from flask_login import LoginManager,login_user,login_required,current_user
 import sys
 from lib.meli import Meli
@@ -83,6 +83,18 @@ def CreateTestUser():
     TestUserInfo = TestUserInfoResponse.content
     return TestUserInfo
 
+@app.route('/Stock')
+@login_required
+def manageStock():
+    print(current_user.get_id())
+    return render_template('StockManage.html')
+
+@app.route('/updateStock')
+@login_required
+def updateStock():
+    current_user.get_id()
+    print(request.args['resource'])
+
 @app.route('/callbacks')
 def callbacksHandler():
     if request.args['topic'] == 'items':
@@ -92,6 +104,7 @@ def callbacksHandler():
     if request.args['topic'] == 'orders':
         orders_handler(request.args['resource'],request.args['user_id'])
     return '200'
+
 
 def payments_handler(resource:str,user_id:str, application_id:str):
     pass
