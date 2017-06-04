@@ -89,6 +89,11 @@ def manageStock():
     print(current_user.get_id())
     return render_template('StockManage.html')
 
+@app.route('/StockList')
+@login_required
+def stockList():
+    return current_user.stock_list
+
 @app.route('/updateStock')
 @login_required
 def updateStock():
