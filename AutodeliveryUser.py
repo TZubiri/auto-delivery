@@ -26,13 +26,17 @@ class User:
     def stock_list(self):
         ls = []
         for raw_stock in db_api.get_user_stock_list(self.user_id):
-            ls.append(Stock(raw_stock[0],raw_stock[1]))
+            ls.append(Stock(int(raw_stock[0]),raw_stock[1],raw_stock[2]))
         return ls
 
     def defined_items(self):
         return db_api.get_user_defined_items(self.user_id)
 
-class Stock:
-    def __init__(self,resource:str,item_name:str):
+
+
+
+class Stock():
+    def __init__(self,id:int,resource:str,item_name:str):
+        self.id = id
         self.resource = resource
         self.item_name = item_name

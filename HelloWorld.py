@@ -1,5 +1,5 @@
 import os
-from flask import Flask,redirect,request,flash,url_for,render_template
+from flask import Flask,redirect,request,flash,url_for,render_template,jsonify
 from flask_login import LoginManager,login_user,login_required,current_user
 import sys
 from lib.meli import Meli
@@ -89,10 +89,19 @@ def manageStock():
     print(current_user.get_id())
     return render_template('StockManage.html')
 
-@app.route('/StockList')
+@app.route('/StockList',methods=['POST'])
 @login_required
 def stockList():
-    return current_user.stock_list
+    response = {}
+    response["Result"] = "OK"
+    response["Records"] = []
+    for stock in current_user.stock_list():
+        response["Records"].append({
+            "stockID":str(stock.id),
+            "resource":stock.resource,
+            "item_name":stock.item_name
+        })
+    return jsonify(response)
 
 @app.route('/updateStock')
 @login_required

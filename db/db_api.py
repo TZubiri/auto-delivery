@@ -28,7 +28,7 @@ def get_user_credentials  (user_id):
 def get_user_stock_list  (user_id):
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute('''SELECT stock.resource,item.name
+    cur.execute('''SELECT stock.id,stock.resource,item.name
                 FROM stock
                 INNER JOIN item
                 ON stock.item = item.id
