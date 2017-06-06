@@ -41,8 +41,18 @@ def get_user_stock_list  (user_id):
 def get_user_defined_items  (user_id):
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute('SELECT name FROM item where mluser = %s;', (user_id,))
+    cur.execute('SELECT name,id FROM item where mluser = %s;', (user_id,))
     response = cur.fetchall()
     cur.close()
     conn.close()
     return response
+
+def create_stock(user_id,resource,item_id):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute('INSERT INTO stock(resource,item)  VALUES (%s,%s) RETURNING id;',(resource,item_id))
+    response = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+    return response[0]

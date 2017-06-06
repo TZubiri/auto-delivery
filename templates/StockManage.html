@@ -15,7 +15,11 @@
 <body>
 
 <div id="StockTableContainer"></div>
-
+  <datalist id="item_names">
+        {% for item_name in current_user.defined_items() %}
+            <option item_id="{{ item_name[1] }}" value="{{item_name[0]}}">
+        {% endfor %}
+  </datalist>
 <!--
     <form action="/updateStock">
         {% for stock in current_user.stock_list() %}
@@ -43,7 +47,7 @@
             title: 'Table of people',
             actions: {
                 listAction: '/StockList',
-                createAction: '/GettingStarted/CreatePerson',
+                createAction: '/StockCreate',
                 updateAction: '/GettingStarted/UpdatePerson',
                 deleteAction: '/GettingStarted/DeletePerson'
             },
@@ -58,7 +62,8 @@
                 },
                 item_name: {
                     title: 'Item Name',
-                    width: '30%'
+                    width: '30%',
+                    input:  function(data){ return '<select name="item_name">{% for item in current_user.defined_items() %}<option value="{{ item[1] }}"> {{item[0]}} </option>{% endfor %}</select><br>'}
                 }
             }
         });

@@ -103,6 +103,23 @@ def stockList():
         })
     return jsonify(response)
 
+@app.route('/StockCreate',methods=['POST'])
+@login_required
+def stockCreate():
+    resource = request.values['resource']
+    item_id = request.values['item_name']
+
+    stockId = current_user.create_stock(resource,item_id)
+    response = {}
+    response["Result"] = "OK"
+    response["Record"] = {
+        "stockID":str(stockId),
+        "resource":resource,
+        "item_id":item_id
+    }
+    return jsonify(response)
+
+
 @app.route('/updateStock')
 @login_required
 def updateStock():

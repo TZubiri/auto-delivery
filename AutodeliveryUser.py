@@ -32,6 +32,9 @@ class User:
     def defined_items(self):
         return db_api.get_user_defined_items(self.user_id)
 
+    def create_stock(self,resource,item_id):
+        return db_api.create_stock(self.user_id,resource,item_id)
+
 
 
 
